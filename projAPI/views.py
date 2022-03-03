@@ -17,3 +17,5 @@ class ApiView(viewsets.ViewSet):
     @staticmethod
     def trial():
         print('test')
+    print('hass')
+    pass
