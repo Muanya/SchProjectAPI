@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="308d6281-e4a7-4fd7-a8f9-7fd56018d72f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/projAPI/trained_model/projectModel.h5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projAPI/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/projAPI/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projAPI/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/projAPI/views.py" afterDir="false" />
@@ -88,6 +86,9 @@
       <updated>1646237029713</updated>
     </task>
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">

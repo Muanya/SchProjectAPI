@@ -5,6 +5,14 @@ from rest_framework.response import Response
 
 from projAPI.models import EmotionLoader, is_base64
 
+"""
+Api for image emotion 
+request input => { image: base64_encoded_image }
+
+response output => { image_encoded : base64_encoded_image
+                        emotions : [{emotion: probability}, ...] }
+"""
+
 
 class ApiViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='emotion')
