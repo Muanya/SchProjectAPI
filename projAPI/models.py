@@ -1,8 +1,10 @@
 import base64
+import os
 import cv2
 import numpy as np
 import keras
 from keras.preprocessing.image import ImageDataGenerator
+from SchProjectAPI.settings import BASE_DIR
 
 """
 Emotion detection model processing
@@ -11,8 +13,12 @@ Emotion detection model processing
 EMOTION_DICT = {0: 'Angry', 1: 'Disgust', 2: 'Fear', 3: 'Happy',
                 4: 'Sad', 5: 'Surprise', 6: 'Neutral'}
 
-SAVED_MODEL = 'trained_model/projectModel.h5'
-CASCADE_FILE = 'haarcascades/haarcascade_frontalface_default.xml'
+MODEL_RELATIVE_PATH = 'projAPI/trained_model/projectModel.h5'
+
+SAVED_MODEL = os.path.join(BASE_DIR, MODEL_RELATIVE_PATH)
+
+CASCADE_FILE = 'projAPI/haarcascades/haarcascade_frontalface_alt.xml'
+CASCADE_FILE_PATH = os.path.join(BASE_DIR, CASCADE_FILE)
 
 
 def is_base64(sb):
@@ -30,6 +36,10 @@ def is_base64(sb):
 
 
 class EmotionLoader:
+    """
+    Handles the detection of emotion of a base64 encoded image
+
+    """
     model = None
     image = None
 
@@ -40,10 +50,10 @@ class EmotionLoader:
 
     @staticmethod
     def get_faces(img):
-        detector = cv2.CascadeClassifier(CASCADE_FILE)
+        detector = cv2.CascadeClassifier(CASCADE_FILE_PATH)
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         rgb_img = cv2.cvtColor(img_gray, cv2.COLOR_GRAY2RGB)
-        rects = detector.detectMultiScale(img_gray, scaleFactor=1.05,
+        rects = detector.detectMultiScale(img_gray, scaleFactor=1.1,
                                           minNeighbors=5, minSize=(30, 30),
                                           flags=cv2.CASCADE_SCALE_IMAGE)
         if len(rects) > 0:
@@ -72,10 +82,17 @@ class EmotionLoader:
             return rgb_img, results
         return None, None
 
+    """
+    This method decodes the emotion of the image stored in @img
+    """
+
     def decode_image(self):
+        # decode the image from base64
         image_64_decode = base64.b64decode(self.image)
         npImg = np.frombuffer(image_64_decode, dtype=np.uint8)
         img = cv2.imdecode(npImg, 1)
+
+        # get all the faces in the image
         labelled_img, faces = self.get_faces(img)
         result = {}
         if faces is not None:
@@ -93,17 +110,63 @@ class EmotionLoader:
 
             _, buffer = cv2.imencode('.JPEG', labelled_img)
             buffer = base64.b64encode(buffer)
-            result['image_encoded'] = buffer
+            # result['image_encoded'] = buffer
             result['emotions'] = result_arr
         else:
             result['info'] = 'No face found in the image'
+            result['emotions'] = [{}]
 
         return result
 
 
-# if __name__ == '__main__':
-#     image = open('image1.jpg', 'rb')
-#     image_read = image.read()
-#     image_64_encode = base64.encodebytes(image_read)
-#     x = EmotionLoader(image_64_encode).decode_image()
-#     print(x['emotions'])
+if __name__ == '__main__':
+    image = open('testImages/image1.jpg', 'rb')
+    image_read = image.read()
+    image_64_encode = base64.encodebytes(image_read)
+    x = EmotionLoader(image_64_encode).decode_image()
+    print(x['emotions'])
+
+
+def print_emotions(frame):
+    _, img_frame = cv2.imencode('.jpg', frame)
+    img_frame = base64.b64encode(img_frame)
+    x = EmotionLoader(img_frame).decode_image()
+    print(x)
+
+    new_image = frame
+    emotion = x['emotions'][0]
+    row = 100
+
+    for key in emotion:
+        new_image = cv2.putText(
+            img=new_image,
+            text="{} => {}".format(key, emotion[key]),
+            org=(100, row),
+            fontFace=cv2.FONT_HERSHEY_DUPLEX,
+            fontScale=1.0,
+            color=(125, 246, 55),
+            thickness=1
+        )
+
+        row = row + 100
+
+    cv2.imshow("Detected emotion", new_image)
+    cv2.waitKey(0)
+    cv2.destroyWindow("Detected emotion")
+
+# if __name__ == "__main__":
+#     vid = cv2.VideoCapture(0)
+#
+#     while vid.isOpened():
+#         _, frame = vid.read()
+#
+#         cv2.imshow('webcam', frame)
+#
+#         if cv2.waitKey(25) & 0xFF == ord('q'):
+#             print_emotions(frame)
+#
+#         if cv2.waitKey(25) & 0xFF == ord('z'):
+#             break
+#
+#     vid.release()
+#     cv2.destroyAllWindows()

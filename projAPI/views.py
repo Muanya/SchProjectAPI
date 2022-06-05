@@ -15,12 +15,14 @@ response output => { image_encoded : base64_encoded_image
 
 
 class ApiViewSet(viewsets.ViewSet):
+
     @action(detail=False, methods=['post'], url_path='emotion')
     def get_emotion(self, req):
         data = JSONParser().parse(req)
+
         try:
             image = data['image']
-        except Exception as e:
+        except KeyError as e:
             image = None
 
         if image:
